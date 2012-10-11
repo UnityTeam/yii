@@ -47,11 +47,16 @@ EOD;
 	public function run($args)
 	{
 		$vcs=false;
+
 		if(isset($args[1]))
-		{
+		{   $force = false;
+			if(in_array('--force', $args)) $force = true; //Allow --force to be passed by automated scripts
+			$args = array_values(array_diff($args, array("--force"))); //Remove --force if present
+			if (isset($args[1])){
 			if($args[1]!='git' && $args[1]!='hg')
 				$this->usageError('Unsupported VCS specified. Currently only git and hg supported.');
 			$vcs=$args[1];
+			}
 		}
 		if(!isset($args[0]))
 			$this->usageError('the Web application location is not specified.');
@@ -67,7 +72,9 @@ EOD;
 			$this->_rootPath=$path=$dir;
 		else
 			$this->_rootPath=$path=$dir.DIRECTORY_SEPARATOR.basename($path);
-		if($this->confirm("Create a Web application under '$path'?"))
+		
+		
+	 	if ($force || $this->confirm("Create a Web application under '$path'?") )
 		{
 			$sourceDir=$this->getSourceDir();
 			if($sourceDir===false)
